@@ -7,21 +7,26 @@
 -export([websocket_info/3]).
 -export([websocket_terminate/3]).
 
+-record(state, {consumer=[]}).
+
 init({tcp, http}, _Req, _Opts) ->
-	{upgrade, protocol, cowboy_websocket}.
+    {upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-	erlang:start_timer(1000, self(), <<"Hello!">>),
-	{ok, Req, undefined_state}.
+        ConsumerPid = consumer:start_link(erlang_web, self()),
+	erlang:start_timer(1000, self(), <<"Starting up!">>),
+	{ok, Req, #state{consumer=ConsumerPid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
-	{reply, {text, << "That's what she said! ", Msg/binary >>}, Req, State};
+	{reply, {text, << "Got client post: ", Msg/binary >>}, Req, State};
+
 websocket_handle(_Data, Req, State) ->
 	{ok, Req, State}.
 
-websocket_info({timeout, _Ref, Msg}, Req, State) ->
-	erlang:start_timer(1000, self(), <<"How' you doin'?">>),
-	{reply, {text, Msg}, Req, State};
+websocket_info({rabbit, Msg}, Req, State) ->
+    io:format("we got a rabbit message ~n"),
+    {reply, {text, Msg}, Req,State};
+
 websocket_info(_Info, Req, State) ->
 	{ok, Req, State}.
 
