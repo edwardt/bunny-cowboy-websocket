@@ -79,6 +79,12 @@
           websocket.onerror = function(evt) { onError(evt) };
       };
 
+      function OnError(e) {
+        console.log("We have error:" + e);
+
+      }
+
+
       function disconnect() {
           websocket.close();
       };
