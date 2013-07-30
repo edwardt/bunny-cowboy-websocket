@@ -26,8 +26,10 @@ websocket_info({rabbit, Msg}, Req, State) ->
     io:format("we got a rabbit message ~n"),
     {reply, {text, Msg}, Req,State};
 
-websocket_info(_Info, Req, State) ->
-	{ok, Req, State}.
+websocket_info(Info, Req, State) ->
+    io:format("We got a non rabbit message, odd~n"),
+    io:format("Message is: ~p~n", [Info]),
+    {ok, Req, State}.
 
 websocket_terminate(_Reason, _Req, _State) ->
 	ok.
