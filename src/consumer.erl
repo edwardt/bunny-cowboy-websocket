@@ -4,7 +4,7 @@
 
 -behavior(gen_bunny).
 
--export([start_link/2,
+-export([start_link/1,
          stop/1]).
 
 -export([init/1, init/2,
@@ -21,9 +21,12 @@
 -record(state, {messages=[], calls=[], infos=[], casts=[], wspid=[]}).
 
 
-start_link(Name, WebSocketPid) ->
+start_link(WebSocketPid) ->
     ConnectInfo = {network, "localhost", 5672, {<<"guest">>, <<"guest">>}, <<"/">>},
     DeclareInfo = {<<"myexchange">>, <<"myqueue">>, <<"myqueue">>},
+    [A,B] = tl(string:tokens(erlang:pid_to_list(self()),"<>.")),
+    FullName = "consumer-" ++ A ++ "-" ++ B, 
+    Name = list_to_atom(FullName),
     gen_bunny:start_link({local, Name}, ?MODULE,  ConnectInfo, DeclareInfo, [WebSocketPid]).
 
 init([Args]) ->

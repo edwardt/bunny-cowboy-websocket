@@ -13,7 +13,7 @@ init({tcp, http}, _Req, _Opts) ->
     {upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-        ConsumerPid = consumer:start_link(erlang_web, self()),
+        ConsumerPid = consumer:start_link( self()),
 	{ok, Req, #state{consumer=ConsumerPid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
