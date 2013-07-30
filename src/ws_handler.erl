@@ -14,7 +14,6 @@ init({tcp, http}, _Req, _Opts) ->
 
 websocket_init(_TransportName, Req, _Opts) ->
         ConsumerPid = consumer:start_link(erlang_web, self()),
-	erlang:start_timer(1000, self(), <<"Starting up!">>),
 	{ok, Req, #state{consumer=ConsumerPid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
