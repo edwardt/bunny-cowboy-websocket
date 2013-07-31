@@ -19,5 +19,7 @@ start_link() ->
 %% supervisor.
 
 init([]) ->
+    %% FIXME: this should be really supervised.
+    producer:start_link(),
 	Procs = [],
 	{ok, {{one_for_one, 10, 10}, Procs}}.

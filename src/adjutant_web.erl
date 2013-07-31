@@ -11,3 +11,4 @@ start() ->
 	ok = application:start(ranch),
 	ok = application:start(cowboy),
 	ok = application:start(adjutant_web).
+

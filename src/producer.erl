@@ -55,12 +55,14 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
-    DeclareInfo = {<<"myexchange">>, <<"myqueue">>, <<"">>},
+    Exchange =  #'exchange.declare'{exchange = <<"fanout">>, type= <<"fanout">>, durable=true},
+    DeclareInfo = {Exchange},
     {ok, Pid} = bunnyc:start_link(mq_producer,
                     {network, "localhost", 5672, {<<"guest">>, <<"guest">>}, <<"/">>},
                     DeclareInfo,
                     [] ),
     {ok, #state{pid=Pid}}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -76,9 +78,14 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({send_message, Msg}, _From, State) ->
+handle_call({send_message, Msg}, _From, State) when is_list(Msg) ->
     BinMsg = list_to_binary(Msg),
     bunnyc:publish(mq_producer, <<"myqueue">>, BinMsg),
+    Reply = ok,
+    {reply, Reply, State};
+
+handle_call({send_message, Msg}, _From, State) when is_binary(Msg) ->
+    bunnyc:publish(mq_producer, <<"myqueue">>, Msg),
     Reply = ok,
     {reply, Reply, State};
 

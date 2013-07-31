@@ -17,7 +17,8 @@ websocket_init(_TransportName, Req, _Opts) ->
 	{ok, Req, #state{consumer=ConsumerPid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
-	{reply, {text, << "Got client post: ", Msg/binary >>}, Req, State};
+    producer:send_message(Msg),
+    {reply, {text, << "Got client post: ", Msg/binary >>}, Req, State};
 
 websocket_handle(_Data, Req, State) ->
 	{ok, Req, State}.
@@ -31,5 +32,7 @@ websocket_info(Info, Req, State) ->
     io:format("Message is: ~p~n", [Info]),
     {ok, Req, State}.
 
-websocket_terminate(_Reason, _Req, _State) ->
-	ok.
+websocket_terminate(_Reason, _Req, _State=#state{consumer=ConsumerPid}) ->
+    io:format("we are terminating the socket!~p ~n", [ConsumerPid]),
+    consumer:stop(ConsumerPid),
+    ok.

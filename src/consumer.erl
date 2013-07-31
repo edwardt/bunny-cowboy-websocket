@@ -22,12 +22,16 @@
 
 
 start_link(WebSocketPid) ->
-    ConnectInfo = {network, "localhost", 5672, {<<"guest">>, <<"guest">>}, <<"/">>},
-    DeclareInfo = {<<"myexchange">>, <<"myqueue">>, <<"myqueue">>},
     [A,B] = tl(string:tokens(erlang:pid_to_list(self()),"<>.")),
-    FullName = "consumer-" ++ A ++ "-" ++ B, 
-    Name = list_to_atom(FullName),
-    gen_bunny:start_link({local, Name}, ?MODULE,  ConnectInfo, DeclareInfo, [WebSocketPid]).
+    NameAsList = "consumer-" ++ A ++ "-" ++ B, 
+    NameAsAtom = list_to_atom(NameAsList),
+    NameAsBin = list_to_binary(NameAsList),
+    Exchange =  #'exchange.declare'{exchange = <<"fanout">>, type= <<"fanout">>, durable=true},
+    Queue = #'queue.declare'{queue = NameAsBin},
+    RoutingKey = <<"">>,
+    ConnectInfo = {network, "localhost", 5672, {<<"guest">>, <<"guest">>}, <<"/">>},
+    DeclareInfo = {Exchange,Queue, RoutingKey},
+    gen_bunny:start_link({local, NameAsAtom}, ?MODULE,  ConnectInfo, DeclareInfo, [WebSocketPid]).
 
 init([Args]) ->
     io:format("~p: init", [?MODULE]),
