@@ -81,13 +81,17 @@
 
       function OnError(e) {
         console.log("We have error:" + e);
-
       }
-
 
       function disconnect() {
           websocket.close();
+          ToggleReconnectButton();
       };
+
+      function ToggleReconnectButton() {
+	// FIXME: implement a reconnect button.
+	console.log("** Reconnect button toggling.. toggle");
+      }
 
       function toggle_connection(){
           if(websocket.readyState == websocket.OPEN){
