@@ -17,8 +17,9 @@ websocket_init(_TransportName, Req, _Opts) ->
 	{ok, Req, #state{consumer=ConsumerPid}}.
 
 websocket_handle({text, Msg}, Req, State) ->
-    producer:send_message(Msg),
-    {reply, {text, << "Got client post: ", Msg/binary >>}, Req, State};
+    NewMsg = "FOR ALL:" ++ Msg,
+    producer:send_message(NewMsg),
+    {reply, {text, << "This client said: ", Msg/binary >>}, Req, State};
 
 websocket_handle(_Data, Req, State) ->
 	{ok, Req, State}.
